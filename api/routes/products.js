@@ -13,10 +13,9 @@ router.post("/", (req, res, next) => {
         price: req.body.price,
     };
 
-    console.log(product);
-
     res.status(201).json({
         message: "Handling POST resquests to /products",
+        product: product,
     });
 });
 
