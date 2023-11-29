@@ -1,56 +1,103 @@
+const Product = require("../models/product");
 const express = require("express");
+const mongoose = require("mongoose");
+
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
-    res.status(200).json({
-        message: "Handling GET resquests to /products",
-    });
-});
+    Product.find()
+        .exec()
+        .then((docs) => {
+            console.log(docs);
 
-router.post("/", (req, res, next) => {
-    const product = {
-        name: req.body.name,
-        price: req.body.price,
-    };
-
-    res.status(201).json({
-        message: "Handling POST resquests to /products",
-        product: product,
-    });
+            res.status(200).json(docs);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ error: err });
+        });
 });
 
 router.get("/:productId", (req, res, next) => {
     const id = req.params.productId;
 
-    if (id === "special") {
-        res.status(200).json({
-            message: "You discovered the special product ID",
-            id: id,
+    Product.findById(id)
+        .exec()
+        .then((doc) => {
+            console.log(doc);
+
+            if (doc) {
+                res.status(200).json(doc);
+            } else {
+                res.status(404).json({
+                    message: "No valid entry found for provided ID",
+                });
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ error: err });
         });
-    } else {
-        res.status(200).json({
-            message: "You passed an product ID",
-            id: id,
+});
+
+router.post("/", (req, res, next) => {
+    const product = new Product({
+        _id: new mongoose.Types.ObjectId(),
+        name: req.body.name,
+        price: req.body.price,
+    });
+
+    product
+        .save()
+        .then((result) => {
+            console.log(result);
+
+            res.status(201).json({
+                message: "Handling POST resquests to /products",
+                createdProduct: result,
+            });
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ error: err });
         });
-    }
 });
 
 router.patch("/:productId", (req, res, next) => {
     const id = req.params.productId;
+    const updateOps = {};
 
-    res.status(200).json({
-        message: "Updated the product!",
-        id: id,
-    });
+    for (const ops of req.body) {
+        updateOps[ops.propName] = ops.value;
+    }
+
+    Product.updateOne({ _id: id }, { $set: updateOps })
+        .exec()
+        .then((result) => {
+            console.log(result);
+
+            res.status(200).json(result);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ error: err });
+        });
 });
 
 router.delete("/:productId", (req, res, next) => {
     const id = req.params.productId;
 
-    res.status(200).json({
-        message: "Deleted the product!",
-        id: id,
-    });
+    Product.deleteMany({ _id: id })
+        .exec()
+        .then((result) => {
+            console.log(result);
+
+            res.status(200).json(result);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ error: err });
+        });
 });
 
 module.exports = router;
