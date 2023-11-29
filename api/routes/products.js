@@ -8,8 +8,6 @@ router.get("/", (req, res, next) => {
     Product.find()
         .exec()
         .then((docs) => {
-            console.log(docs);
-
             res.status(200).json(docs);
         })
         .catch((err) => {
@@ -24,8 +22,6 @@ router.get("/:productId", (req, res, next) => {
     Product.findById(id)
         .exec()
         .then((doc) => {
-            console.log(doc);
-
             if (doc) {
                 res.status(200).json(doc);
             } else {
@@ -50,8 +46,6 @@ router.post("/", (req, res, next) => {
     product
         .save()
         .then((result) => {
-            console.log(result);
-
             res.status(201).json({
                 message: "Handling POST resquests to /products",
                 createdProduct: result,
@@ -74,8 +68,6 @@ router.patch("/:productId", (req, res, next) => {
     Product.updateOne({ _id: id }, { $set: updateOps })
         .exec()
         .then((result) => {
-            console.log(result);
-
             res.status(200).json(result);
         })
         .catch((err) => {
@@ -90,8 +82,6 @@ router.delete("/:productId", (req, res, next) => {
     Product.deleteMany({ _id: id })
         .exec()
         .then((result) => {
-            console.log(result);
-
             res.status(200).json(result);
         })
         .catch((err) => {
