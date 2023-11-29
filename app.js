@@ -1,10 +1,15 @@
 const express = require("express");
-const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv").config();
 
 const productRoutes = require("./api/routes/products");
 const ordersRoutes = require("./api/routes/orders");
+
+const app = express();
+
+mongoose.connect(process.env.MONGODB_ATLAS_URL);
 
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
