@@ -6,9 +6,26 @@ const router = express.Router();
 
 router.get("/", (req, res, next) => {
     Product.find()
+        .select("name price _id")
         .exec()
         .then((docs) => {
-            res.status(200).json(docs);
+            const response = {
+                count: docs.length,
+                products: docs.map((doc) => {
+                    return {
+                        _id: doc._id,
+                        name: doc.name,
+                        price: doc.price,
+                        request: {
+                            type: "GET",
+                            description: "Get only this product",
+                            url: "http://localhost:3000/products/" + doc._id,
+                        },
+                    };
+                }),
+            };
+
+            res.status(200).json(response);
         })
         .catch((err) => {
             console.error(err);
@@ -20,10 +37,18 @@ router.get("/:productId", (req, res, next) => {
     const id = req.params.productId;
 
     Product.findById(id)
+        .select("name price _id")
         .exec()
         .then((doc) => {
             if (doc) {
-                res.status(200).json(doc);
+                res.status(200).json({
+                    product: doc,
+                    request: {
+                        type: "GET",
+                        description: "Get all products",
+                        url: "http://localhost:3000/products/",
+                    },
+                });
             } else {
                 res.status(404).json({
                     message: "No valid entry found for provided ID",
@@ -47,8 +72,16 @@ router.post("/", (req, res, next) => {
         .save()
         .then((result) => {
             res.status(201).json({
-                message: "Handling POST resquests to /products",
-                createdProduct: result,
+                createdProduct: {
+                    _id: result._id,
+                    name: result.name,
+                    price: result.price,
+                    request: {
+                        type: "GET",
+                        description: "Get the created product",
+                        url: "http://localhost:3000/products/" + result._id,
+                    },
+                },
             });
         })
         .catch((err) => {
@@ -68,7 +101,15 @@ router.patch("/:productId", (req, res, next) => {
     Product.updateOne({ _id: id }, { $set: updateOps })
         .exec()
         .then((result) => {
-            res.status(200).json(result);
+            res.status(200).json({
+                changesNum: result.modifiedCount,
+                found: result.acknowledged,
+                request: {
+                    type: "GET",
+                    description: "Get the updated product",
+                    url: "http://localhost:3000/products/" + id,
+                },
+            });
         })
         .catch((err) => {
             console.error(err);
