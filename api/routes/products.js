@@ -16,11 +16,14 @@ router.get("/", (req, res, next) => {
                         _id: doc._id,
                         name: doc.name,
                         price: doc.price,
-                        request: {
-                            type: "GET",
-                            description: "Get only this product",
-                            url: "http://localhost:3000/products/" + doc._id,
-                        },
+                        requests: [
+                            {
+                                type: "GET",
+                                description: "Get only this product",
+                                url:
+                                    "http://localhost:3000/products/" + doc._id,
+                            },
+                        ],
                     };
                 }),
             };
@@ -43,11 +46,13 @@ router.get("/:productId", (req, res, next) => {
             if (doc) {
                 res.status(200).json({
                     product: doc,
-                    request: {
-                        type: "GET",
-                        description: "Get all products",
-                        url: "http://localhost:3000/products/",
-                    },
+                    requests: [
+                        {
+                            type: "GET",
+                            description: "Get all products",
+                            url: "http://localhost:3000/products/",
+                        },
+                    ],
                 });
             } else {
                 res.status(404).json({
@@ -76,11 +81,13 @@ router.post("/", (req, res, next) => {
                     _id: result._id,
                     name: result.name,
                     price: result.price,
-                    request: {
-                        type: "GET",
-                        description: "Get the created product",
-                        url: "http://localhost:3000/products/" + result._id,
-                    },
+                    requests: [
+                        {
+                            type: "GET",
+                            description: "Get the created product",
+                            url: "http://localhost:3000/products/" + result._id,
+                        },
+                    ],
                 },
             });
         })
@@ -104,11 +111,13 @@ router.patch("/:productId", (req, res, next) => {
             res.status(200).json({
                 changesNum: result.modifiedCount,
                 found: result.acknowledged,
-                request: {
-                    type: "GET",
-                    description: "Get the updated product",
-                    url: "http://localhost:3000/products/" + id,
-                },
+                requests: [
+                    {
+                        type: "GET",
+                        description: "Get the updated product",
+                        url: "http://localhost:3000/products/" + id,
+                    },
+                ],
             });
         })
         .catch((err) => {
